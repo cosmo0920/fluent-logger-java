@@ -4,6 +4,7 @@ package org.fluentd.logger.sender;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.fluentd.logger.errorhandler.ErrorHandler;
 import org.fluentd.logger.sender.ExponentialDelayReconnector;
@@ -95,6 +96,12 @@ public class AsyncRawSocketSender implements Sender {
 
     @Override
     public void close() {
+        senderTask.shutdown();
+        try {
+            senderTask.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            // Do nothing!
+        }
         sender.close();
     }
 
